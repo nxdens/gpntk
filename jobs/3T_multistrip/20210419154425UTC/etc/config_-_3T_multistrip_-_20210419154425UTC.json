@@ -1,0 +1,13 @@
+{
+    "job_name": "3T_multistrip",
+    "location": "psc_bridges2",
+    "subjects": "/ocean/projects/med200002p/shared/data/example/metadata/subject_list.txt",
+    "studydir": "/ocean/projects/med200002p/shared/data/example",
+    "subjectsdir": "processed/app-freesurfer/jobs/3T_validation/20210415184156UTC",
+    "hires": "true",
+    "multistrip": "true",
+    "job_slots": 16,
+    "cpus_per_task": 4,
+    "mem_per_cpu": "2GB",
+    "clean_job": "true"
+}

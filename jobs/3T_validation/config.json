@@ -1,0 +1,14 @@
+{
+    "job_name": "3T_validation",
+    "location": "psc_bridges2",
+    "subjects": "/ocean/projects/med200002p/shared/data/example/metadata/subject_list.txt",
+    "studydir": "/ocean/projects/med200002p/shared/data/example",
+    "input_dirname": "MNI",
+    "input_filename": "3T1.nii.gz",
+    "hires": "true",
+    "skullstrip": "-autorecon1",
+    "job_slots": 16,
+    "cpus_per_task": 4,
+    "mem_per_cpu": "2GB",
+    "clean_job": "true"
+}

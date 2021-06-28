@@ -1,0 +1,9 @@
+{
+    "job_name": "bert",
+    "location": "gpn_paradox",
+    "subjects": "/data/example/metadata/subject.txt",
+    "subjectsdir": "/data/example",
+    "input_filename": "sample-001.nii",
+    "hires": "true",
+    "skullstrip": "-autorecon1"
+}

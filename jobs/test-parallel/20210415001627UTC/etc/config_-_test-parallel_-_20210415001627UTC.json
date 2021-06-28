@@ -1,0 +1,11 @@
+{
+    "job_name": "test-parallel",
+    "location": "psc_bridges2",
+    "subjects": "/ocean/projects/med200002p/shared/data/example/metadata/subject.txt",
+    "studydir": "/ocean/projects/med200002p/shared/data/example",
+    "input_dirname": "MNI",
+    "input_filename": "7T11.nii.gz",
+    "hires": "true",
+    "skullstrip": "-autorecon1",
+    "clean_job": "true"
+}

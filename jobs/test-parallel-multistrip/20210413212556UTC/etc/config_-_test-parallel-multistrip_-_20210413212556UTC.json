@@ -1,0 +1,11 @@
+{
+    "job_name": "test-parallel-multistrip",
+    "location": "psc_bridges2",
+    "subjects": "/ocean/projects/med200002p/shared/data/example/metadata/subjects_parallel.txt",
+    "studydir": "/ocean/projects/med200002p/shared/data/example",
+    "subjectsdir": "processed/app-freesurfer/jobs/test-parallel/20210413211710UTC",
+    "hires": "true",
+    "multistrip": "true",
+    "clean_job": "true",
+    "print": "echo"
+}
