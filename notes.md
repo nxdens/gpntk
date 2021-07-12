@@ -1,10 +1,10 @@
 # Organization
 
-in libexec or bin call app-spm which parses find the command called and finds the right json file
+in libexec or bin call app-gpntk which parses find the command called and finds the right json file
 
 ​	we will just add a command "run_spm" 
 
-​	or maybe just make it a json file config thing?
+​	or maybe just make it a json file config thing? probably not
 
 app-spm calls API_GPNTK which sets up slurm command and parameters for BATCH_GPNTK
 
@@ -14,13 +14,17 @@ app-spm calls API_GPNTK which sets up slurm command and parameters for BATCH_GPN
 
 BATCH_GPNTK actually calls the slurm command for every subject in teh batch
 
+Batch calls the app_gpntk
+
+app_gpntk sets up singularity
+
 where is setup_gpntk/fs used????
 
 ## Functions to work on
 
-### API_GPNTK
+- [ ] ### API_GPNTK
 
-- [x] setup
+  - [x] setup
 
   ​	program flow
 
@@ -36,57 +40,87 @@ where is setup_gpntk/fs used????
      1. removes all metadata for previous previous instances of the job
      2. and a bunch of other stuff that i don't think needs to be changed 
 
-- [x] usage - check file structure section - kinda done for now
+  - [x] usage - check file structure section - kinda done for now
 
-- [x] input_parser - check file structure section - kinda done for now
+  - [x] input_parser - check file structure section - kinda done for now
 
-  - [ ] test
+    - [ ] test
 
-- [x] parse_json - check file structure section - kinda done for now; check to make sure array for the pipeline_steps works
+  - [x] parse_json - check file structure section - kinda done for now; check to make sure array for the pipeline_steps works
 
-  - [ ] Test
+    - [ ] Test
 
-- [x] get_default_dataset_dir
+  - [x] get_default_dataset_dir
 
-  - [ ] test
+    - [ ] test
 
-  shouldn't need any changes but need to test
+    shouldn't need any changes but need to test
 
-- [x] get_subjid_list
+  - [x] get_subjid_list
 
-  should be fine
+    should be fine
 
-- [x] get_default_queuing_options
+  - [x] get_default_queuing_options
 
-  should be fine 
+    should be fine 
 
-- [x] array_contains - maybe not needed
+  - [x] array_contains - maybe not needed
 
-- [x] get_queuing_command
+  - [x] get_queuing_command
 
-- [x] get_default_freesurfer_input_option - remove all calls of this
+  - [x] get_default_freesurfer_input_option - remove all calls of this
 
-- [x] get_default_freesurfer_T2_options - remove all calls of this
+  - [x] get_default_freesurfer_T2_options - remove all calls of this
 
-- [x] get_default_freesurfer_FLAIR_option - remove all calls of this
+  - [x] get_default_freesurfer_FLAIR_option - remove all calls of this
 
-- [x] set_hires - remove all calls of this
+  - [x] set_hires - remove all calls of this
 
-- [ ] main
+  - [ ] main
 
-  need to fix the batch script call after fixing the batch script :|
+    need to fix the batch script call after fixing the batch script :|
 
-- [x] clean
+  - [x] clean
 
-  should be fine
+    should be fine
 
-- [ ] Check for compatibility with batch/setup/app scripts
+  - [x] Check for compatibility with batch/setup/app scripts
 
-  only calls the batch script here 
+    only calls the batch script here 
 
-### BATCH_GPNTK
+- [ ] ### BATCH_GPNTK
 
-- [ ] APP_fs call
+  - [ ] APP_fs call
+  - [ ] usage
+  - [ ] input_parser
+  - [ ] setup
+  - [ ] setup_slurm
+  - [ ] setup_parallel - remove all calls
+  - [ ] setup_bridges2 - should be fine
+  - [ ] rsync_local 
+  - [ ] rsync_to_bridges2
+  - [ ] rsync _from_bridges2
+  - [ ] rsync_to_rflab - remove all calls
+  - [ ] rsync_from rflab - remove all calls
+  - [ ] _rsync
+  - [ ] main
+  - [ ] clean
+  - [ ] halt
+  - [ ] run_main
+  - [ ] run_main_with_parallel -remove all calls
+  - [ ] run_main_serial - remove all calls
+  - [ ] exit stuff
+
+- [ ] ### APP_SPM 
+
+  - [ ] input_parser
+  - [ ] setup
+  - [ ] main 
+  - [ ] make_t1w_hires_nifti_file - remove
+  - [ ] clean
+  - [ ] halt - should be fine
+
+- [ ] ### Check argument compatibility and system compatibility
 
 ## Json file structure
 

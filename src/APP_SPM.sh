@@ -22,11 +22,9 @@ Usage: $log_ToolName
     [--input=<file path>]                        Single NIFTi/DICOM file from series
                                                  Default: <subjectdir>/<subjid>/mri/orig/XXX.mgz
                                                  (XXX is a 3-digit, zero-padded number)
-    [--T2=<path to DICOM or NIFTI>]              Default: None
-    [--FLAIR=<path to DICOM or NIFTI>]           Default: None
-    [--directives=<directives>]                  Default: -autorecon-all
-    [--expert_opts=<expert options>]             Default: None
-    [--expert_opts_file=<expert options file>]   Default: None
+    [--batchdir=<batch directory>]               Default: None
+    [--batchfile=<path to batch file>]           Default: None
+    [--pipeline_steps=<list of pipeline steps>]  Default: None
 
 
     PARAMETERs are [ ] = optional; < > = user supplied value
@@ -49,11 +47,9 @@ input_parser()
     opts_AddMandatory '--subjid' 'subjid' 'Subject ID' "a required value; the subject name" "--s" "--sid" "--subject"
     opts_AddOptional '--subjectdir' 'subjectdir' 'Directory with data' "an optional value; the path to the directory holding subject data. Default: None" "" "--sd"
     opts_AddOptional '--input' 'input' 'Path to input file' "an optional value; the path to the subject data (NIFTI/DICOM file). Default: <subjectdir>/<subjid>/mri/orig/xxx.mgz" "" "--i"
-    opts_AddOptional  '--T2' 'T2' 'path relative to <subjectsdir>/<subjid> to single DICOM file from a T2 MRI series or a single NIFTI file from a T2 series' "an optional argument; path relative to <subjectsdir>/<subjid> to single DICOM file from a T2 MRI series or a single NIFTI file from a T2 series. Default: None." "" "--t2"
-    opts_AddOptional  '--FLAIR' 'FLAIR' 'path relative to <subjectsdir>/<subjid> to single DICOM file from a FLAIR MRI series or a single NIFTI file from a FLAIR series' "an optional argument; path relative to <subjectsdir>/<subjid> to single DICOM file from a FLAIR MRI series or a single NIFTI file from a FLAIR series. Default: None." "" "--flair"
-    opts_AddOptional '--directives' 'directives' 'space-delimited list of freesurfer directives' 'an optional argument; space-delimited list of freesurfer directives to instruct recon-all which part(s) of the reconstruction stream to run (e.g., "-autorecon-all -notalairach"). Default: -autorecon-all.' "-autorecon-all"
-    opts_AddOptional '--expert_opts' 'expert_opts' 'space-delimited list of freesurfer expert options' 'an optional argument; space-delimited list of freesurfer expert options (e.g., "-normmaxgrad maxgrad"; passes "-g maxgrad to mri_normalize"). The expert preferences flags supported by recon-all to be passed to a freesurfer binary. Default: None.' ""
-    opts_AddOptional '--expert_opts_file' 'expert_opts_file' 'path to file containing special options to include in the command string' 'an optional argument; path to file containing special options to include in the command string (in addition to, not in place of the expert options flags already set). The file should contain as the first item the name of the command, and the items following it on rest of the line will be passed as the extra options (e.g., "mri_em_register -p .5"). Default: None.' "" "--expert"
+    opts_AddOptional   '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
+    opts_AddOptional  '--batchfile' 'batchfile' 'set file used for generating batches. If not set then script will look for .mat batches in the batch directory' "an optional arguement; matlab file used to create batches if not already put in the batch directory toDefault:None" "" "--bf"
+    opts_AddOptional  '--pipeline_steps' 'pipeline_steps' 'list of SPM steps that will be used in the pipeline. These must correspond to the GPN spm toolbox names.' "an optinoal argument; list of pipeline steps with names matching the GPN toolbox script name Default:None" "" "--pipeline"
     opts_AddOptional '--print' 'print' 'Perform a dry run' "an optional argument; If PRINT is not a null or empty string variable, then this script and other scripts that it calls will simply print out the commands and with options it otherwise would run. This printing will be done using the command specified in the PRINT variable, e.g., echo" ""
 
     opts_ParseArguments "$@"

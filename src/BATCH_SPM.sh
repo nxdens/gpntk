@@ -29,11 +29,9 @@ Usage: $log_ToolName
                     --studydir=<study directory>                   Default: None
                     --subjectsdir=<subjects directory>             Default: None
                     [--input=<path to DICOM or NIFTI>]             Default: None
-                    [--directives=<freesurfer directives list>]    Default: -autorecon-all
-                    [--expert_opts=<freesurfer xopts list>]        Default: None
-                    [--expert_opts_file=<freesurfer xopts file>]   Default: None
-                    [--T2=<path to DICOM or NIFTI>]                Default: None
-                    [--FLAIR=<path to DICOM or NIFTI>]             Default: None
+                    [--batchdir=<batch directory>]                 Default: None
+                    [--batchfile=<path to batch file>]             Default: None
+                    [--pipeline_steps=<list of pipeline steps>]    Default: None
 
                 Miscellaneous Options
                     [--job_name=<name for job allocation>]         Default: GPN
@@ -72,12 +70,10 @@ input_parser()
     opts_AddMandatory '--studydir' 'studydir' 'specify study directory' "a required argument; is the path to the study directory (e.g. /data/ADNI)." "--ds"
     opts_AddMandatory '--subjectsdir' 'subjectsdir' 'specify subjects directory' "a required argument; is the path to the subjects directory (e.g. /data/ADNI)." "--sd"
     opts_AddOptional  '--input' 'input' 'path relative to <subjectsdir>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series' "an optional argument; <subjectsdir>/<SUBJID> single DICOM file from a T1 MRI series or a single NIFTI file from a series. If no input volumes are given, then it is assumed that the subject directory has already been created and that the data already exists in MGZ format in <subjectsdir>/<SUBJID>/mri/orig as XXX.mgz where XXX is a 3-digit, zero-padded number.Default: None." "" "--i"
-    opts_AddOptional  '--T2' 'T2' 'path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T2 MRI series or a single NIFTI file from a T2 series' "an optional argument; path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T2 MRI series or a single NIFTI file from a T2 series. If no T2 volumes are given and both t2_dirname and t2_filename are None, then it is assumed that no T2 volume is available. If t2_dirname is supplied, T2 is assumed to be <DATASETDIR>/<SUBJID>/t2_dirname/t2w.nii.gz. If t2_filename is supplied, then T2 is assumed to be <DATASETDIR>/<SUBJID>/<t2_filename>. If both <t2_dirname> and <t2_filename> are supplied, then T2 is assumed to be <DATASETDIR>/<SUBJID>/<t2_dirname>/<t2_filename>. Default: None." "" "--t2"
-    opts_AddOptional  '--FLAIR' 'FLAIR' 'path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a FLAIR MRI series or a single NIFTI file from a FLAIR series' "an optional argument; path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a FLAIR MRI series or a single NIFTI file from a FLAIR series. If no FLAIR volume is given and both flair_dirname and flair_filename are None, then it is assumed no FLAIR volume is available. If input_dirname is supplied, FLAIR is assumed to be <DATASETDIR>/<SUBJID>/flair_dirname/flair.nii.gz. If flair_filename is supplied, then FLAIR is assumed to be <DATASETDIR>/<SUBJID>/<flair_filename>. If both <flair_dirname> and <flair_filename> are supplied, then FLAIR is assumed to be <DATASETDIR>/<SUBJID>/<flair_dirname>/<flair_filename>. Default: None." "" "--flair"
-    opts_AddOptional '--directives' 'directives' 'space-delimited list of freesurfer directives' 'an optional argument; space-delimited list of freesurfer directives to instruct recon-all which part(s) of the reconstruction stream to run (e.g., "-autorecon-all -notalairach"). Default: -autorecon-all.' "-autorecon-all"
-    opts_AddOptional '--expert_opts' 'expert_opts' 'space-delimited list of freesurfer expert options' 'an optional argument; space-delimited list of freesurfer expert options (e.g., "-normmaxgrad maxgrad"; passes "-g maxgrad to mri_normalize"). The expert preferences flags supported by recon-all to be passed to a freesurfer binary. Default: None.' ""
-    opts_AddOptional '--expert_opts_file' 'expert_opts_file' 'path to file containing special options to include in the command string' 'an optional argument; path to file containing special options to include in the command string (in addition to, not in place of the expert options flags already set). The file should contain as the first item the name of the command, and the items following it on rest of the line will be passed as the extra options (e.g., "mri_em_register -p .5"). Default: None.' "" "--expert"
-
+    opts_AddOptional   '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
+    opts_AddOptional  '--batchfile' 'batchfile' 'set file used for generating batches. If not set then script will look for .mat batches in the batch directory' "an optional arguement; matlab file used to create batches if not already put in the batch directory toDefault:None" "" "--bf"
+    opts_AddOptional  '--pipeline_steps' 'pipeline_steps' 'list of SPM steps that will be used in the pipeline. These must correspond to the GPN spm toolbox names.' "an optinoal argument; list of pipeline steps with names matching the GPN toolbox script name Default:None" "" "--pipeline"
+    
     # Miscellaneous Options
     opts_AddOptional '--job_name' 'job_name' 'name for job allocation' "an optional argument; specify a name for the job allocation. Default: GPN (RFLab)" "GPN"
     opts_AddOptional  '--location' 'location' 'name of the HCP' "an optional argument; is the name of the High Performance Computing (HCP) cluster. Default: bridges2. Supported: psc_bridges2 | pitt_crc | rflab_workstation | rflab_cluster | gpn_paradox" "psc_bridges2"
@@ -185,7 +181,7 @@ setup_slurm()
 	log_Msg "Subject ID: $SUBJID"
 	log_Msg "Subject directory: $NODE_SUBJECTDIR"
 	log_Msg "APP directory: $NODE_APPDIR"
-	log_Msg "environment Script: $NODE_APPDIR/src/SETUP_fs.sh"
+	log_Msg "environment Script: $NODE_APPDIR/src/SETUP_SPM.sh"
 	log_Msg "Log directory: $NODE_LOGDIR"
 	log_Msg "print: $print"
 
@@ -579,9 +575,9 @@ main()
     echo "${singularity_cmd}"
 
     echo "----------------------------------------------------------"
-    echo "APP_fs.sh script call, Runing inside container"
+    echo "APP_SPM.sh script call, Runing inside container"
     echo "----------------------------------------------------------"
-    echo "$CONTAINER_APPDIR/src/APP_fs.sh
+    echo "$CONTAINER_APPDIR/src/APP_SPM.sh
   --subjid=$CONTAINER_SUBJID
   --sd=$CONTAINER_SUBJECTDIR
   --i=$CONTAINER_INPUT
@@ -595,9 +591,9 @@ main()
   2> $NODE_LOGDIR/APP_-_$SUBJID.err"
 
     #replace spaces with commas in space separated options
-    #this is replaced back to spaces in APP_fs.sh
+    #this is replaced back to spaces in APP_SPM.sh
     ${singularity_cmd} \
-    $CONTAINER_APPDIR/src/APP_fs.sh \
+    $CONTAINER_APPDIR/src/APP_SPM.sh \
     --subjid="${CONTAINER_SUBJID}" \
     --sd="${CONTAINER_SUBJECTDIR}" \
     --i="$CONTAINER_INPUT" \
@@ -644,12 +640,12 @@ clean()
     log_Msg "Copy subject processed data from node"
     ${rsync_cmd} "${NODE_SUBJECTDIR}/${SUBJID}/" "$SERVER_SUBJID_JOBDIR/"
 
-    # APP_fs.sh log files
-    log_Msg "Move APP_fs.sh logs: SERVER_DATASET_LOGDIR/APP_-_<subjid>.*"
+    # APP_SPM.sh log files
+    log_Msg "Move APP_SPM.sh logs: SERVER_DATASET_LOGDIR/APP_-_<subjid>.*"
     ${rsync_cmd} ${NODE_LOGDIR}/ $SERVER_STUDY_LOGDIR
 
-    # BATCH_fs.sh log files
-    log_Msg "Move BATCH_fs.sh logs: STUDY_LOGDIR/BATCH_-_<subjid>.*"
+    # BATCH_SPM.sh log files
+    log_Msg "Move BATCH_SPM.sh logs: STUDY_LOGDIR/BATCH_-_<subjid>.*"
     if [[ -f $output ]] ; then
         mv $output "$SERVER_STUDY_LOGDIR/BATCH_-_${SUBJID}.out"
     fi
@@ -675,7 +671,7 @@ halt()
    exit_code=$?
    if [ $exit_code -ne 0 ]; then
        echo "###################################################"
-       echo "################ HALT: APP_fs.sh ##################"
+       echo "################ HALT: APP_SPM.sh ##################"
        echo "###################################################"
 
        clean
@@ -685,7 +681,7 @@ halt()
 run_main()
 {
     echo "#####################################################"
-    echo "################ START: BATCH_fs.sh #################"
+    echo "################ START: BATCH_SPM.sh #################"
     echo "#####################################################"
 
     case "$location" in
@@ -701,7 +697,7 @@ run_main()
     esac
 
     echo "###################################################"
-    echo "################ END: BATCH_fs.sh #################"
+    echo "################ END: BATCH_SPM.sh #################"
     echo "###################################################"
 }
 
