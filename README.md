@@ -109,7 +109,7 @@ The main output of this App are directories named `studydir/processed/app-freesu
 ```bash
 /data
   └──processed
-      └── app-freesurfer
+      └── app-gpntk
           └── jobs
               └── example
                    └─ 20210407095730UTC
