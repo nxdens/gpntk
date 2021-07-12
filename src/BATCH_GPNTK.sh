@@ -185,7 +185,7 @@ setup_slurm()
 	log_Msg "Subject ID: $SUBJID"
 	log_Msg "Subject directory: $NODE_SUBJECTDIR"
 	log_Msg "APP directory: $NODE_APPDIR"
-	log_Msg "environment Script: $NODE_APPDIR/src/SETUP_fs.sh"
+	log_Msg "environment Script: $NODE_APPDIR/src/SETUP_GPNTK.sh"
 	log_Msg "Log directory: $NODE_LOGDIR"
 	log_Msg "print: $print"
 
@@ -579,9 +579,9 @@ main()
     echo "${singularity_cmd}"
 
     echo "----------------------------------------------------------"
-    echo "APP_fs.sh script call, Runing inside container"
+    echo "APP_GPNTK.sh script call, Runing inside container"
     echo "----------------------------------------------------------"
-    echo "$CONTAINER_APPDIR/src/APP_fs.sh
+    echo "$CONTAINER_APPDIR/src/APP_GPNTK.sh
   --subjid=$CONTAINER_SUBJID
   --sd=$CONTAINER_SUBJECTDIR
   --i=$CONTAINER_INPUT
@@ -595,9 +595,9 @@ main()
   2> $NODE_LOGDIR/APP_-_$SUBJID.err"
 
     #replace spaces with commas in space separated options
-    #this is replaced back to spaces in APP_fs.sh
+    #this is replaced back to spaces in APP_GPNTK.sh
     ${singularity_cmd} \
-    $CONTAINER_APPDIR/src/APP_fs.sh \
+    $CONTAINER_APPDIR/src/APP_GPNTK.sh \
     --subjid="${CONTAINER_SUBJID}" \
     --sd="${CONTAINER_SUBJECTDIR}" \
     --i="$CONTAINER_INPUT" \
@@ -644,12 +644,12 @@ clean()
     log_Msg "Copy subject processed data from node"
     ${rsync_cmd} "${NODE_SUBJECTDIR}/${SUBJID}/" "$SERVER_SUBJID_JOBDIR/"
 
-    # APP_fs.sh log files
-    log_Msg "Move APP_fs.sh logs: SERVER_DATASET_LOGDIR/APP_-_<subjid>.*"
+    # APP_GPNTK.sh log files
+    log_Msg "Move APP_GPNTK.sh logs: SERVER_DATASET_LOGDIR/APP_-_<subjid>.*"
     ${rsync_cmd} ${NODE_LOGDIR}/ $SERVER_STUDY_LOGDIR
 
-    # BATCH_fs.sh log files
-    log_Msg "Move BATCH_fs.sh logs: STUDY_LOGDIR/BATCH_-_<subjid>.*"
+    # BATCH_GPNTK.sh log files
+    log_Msg "Move BATCH_GPNTK.sh logs: STUDY_LOGDIR/BATCH_-_<subjid>.*"
     if [[ -f $output ]] ; then
         mv $output "$SERVER_STUDY_LOGDIR/BATCH_-_${SUBJID}.out"
     fi
@@ -675,7 +675,7 @@ halt()
    exit_code=$?
    if [ $exit_code -ne 0 ]; then
        echo "###################################################"
-       echo "################ HALT: APP_fs.sh ##################"
+       echo "################ HALT: APP_GPNTK.sh ##################"
        echo "###################################################"
 
        clean
@@ -685,7 +685,7 @@ halt()
 run_main()
 {
     echo "#####################################################"
-    echo "################ START: BATCH_fs.sh #################"
+    echo "################ START: BATCH_GPNTK.sh #################"
     echo "#####################################################"
 
     case "$location" in
@@ -701,7 +701,7 @@ run_main()
     esac
 
     echo "###################################################"
-    echo "################ END: BATCH_fs.sh #################"
+    echo "################ END: BATCH_GPNTK.sh #################"
     echo "###################################################"
 }
 

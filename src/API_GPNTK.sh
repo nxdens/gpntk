@@ -705,10 +705,10 @@ main()
     get_queuing_command
 
     echo "----------------------------------------------------------"
-    echo "BATCH_fs.sh script call"
+    echo "BATCH_GPNTK.sh script call"
     echo "----------------------------------------------------------"
 
-    echo "/BATCH_fs.sh
+    echo "/BATCH_GPNTK.sh
   --subjects=${subjid_list[@]}
   --subjectsdir=$DATASETDIR
   --input=$default_input
@@ -748,7 +748,7 @@ main()
     log_Msg "# END: main"
 
     if [[  -f "${expert_opts_file}" ]] ; then
-        # Append <expert_opts_file>, if it exists, to API_fs.sh log files
+        # Append <expert_opts_file>, if it exists, to API_GPNTK.sh log files
         cat >> "$JOB_LOGDIR/API.out" <<-EOM
 
 -------------------- FreeSurfer expert options file contents ------------------
@@ -792,7 +792,7 @@ clean()
         stdout_filename="${SUBJID}_-_app-freesurfer_-_${job_name}_-_${timestamp}.out"
         stderr_filename="${SUBJID}_-_app-freesurfer_-_${job_name}_-_${timestamp}.err"
 
-        # Append API_fs.sh log files to app-freesurfer log files
+        # Append API_GPNTK.sh log files to app-freesurfer log files
         if [ -f $JOB_LOGDIR/API.out ]; then
             cp "$JOB_LOGDIR/API.out" $STUDY_LOGDIR/${stdout_filename}
         fi
@@ -800,7 +800,7 @@ clean()
             cp "$JOB_LOGDIR/API.err" $STUDY_LOGDIR/${stderr_filename}
         fi
 
-        # Append BATCH_fs.sh log files to app-freesurfer log files
+        # Append BATCH_GPNTK.sh log files to app-freesurfer log files
         if [ -f $STUDY_LOGDIR/BATCH_-_${SUBJID}.out ]; then
             cat $STUDY_LOGDIR/BATCH_-_${SUBJID}.out >> $STUDY_LOGDIR/${stdout_filename}
             rm -f $STUDY_LOGDIR/BATCH_-_${SUBJID}.out
@@ -810,7 +810,7 @@ clean()
             rm -f $STUDY_LOGDIR/BATCH_-_${SUBJID}.err
         fi
 
-        # Append APP_fs.sh log files to app-freesurfer log files
+        # Append APP_GPNTK.sh log files to app-freesurfer log files
         if [ -f $STUDY_LOGDIR/APP_-_${SUBJID}.out ]; then
             cat $STUDY_LOGDIR/APP_-_${SUBJID}.out >> $STUDY_LOGDIR/${stdout_filename}
             rm -f $STUDY_LOGDIR/APP_-_${SUBJID}.out
@@ -834,7 +834,7 @@ Final log file created, clean partial log files
 --------------------------------------------------------------------------------
 $(date):$(basename "$0"): # END: clean"
 ################################################################################
-################################## END: API_fs.sh ##############################
+################################## END: API_GPNTK.sh ##############################
 ################################################################################
 EOF
         fi
@@ -871,7 +871,7 @@ EOF
     cp -r $STUDY_JOBDIR/* \
         "${studydir}/processed/app-freesurfer/jobs/${job_name}/${timestamp}/metadata/"
 
-    # Rename API_fs.sh log files to app-freesurfer_-_${job_name}_-_${timestamp}.*
+    # Rename API_GPNTK.sh log files to app-freesurfer_-_${job_name}_-_${timestamp}.*
     if [ -f $JOB_LOGDIR/API.out ]; then
         mv $JOB_LOGDIR/API.out "$JOB_LOGDIR/app-freesurfer_-_${job_name}_-_${timestamp}.out"
     fi
@@ -891,7 +891,7 @@ halt()
    exit_code=$?
    if [ $exit_code -ne 0 ]; then
        echo "###################################################"
-       echo "################ HALT: APP_fs.sh ##################"
+       echo "################ HALT: APP_GPNTK.sh ##################"
        echo "###################################################"
 
        clean
@@ -901,14 +901,14 @@ halt()
 run_main()
 {
     echo "###################################################"
-    echo "################ START: API_fs.sh #################"
+    echo "################ START: API_GPNTK.sh #################"
     echo "###################################################"
 
     main
     clean
 
     echo "#################################################"
-    echo "################ END: API_fs.sh #################"
+    echo "################ END: API_GPNTK.sh #################"
     echo "#################################################"
 }
 
