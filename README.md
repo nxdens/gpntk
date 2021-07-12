@@ -2,9 +2,12 @@
 
 This is a wrapper for [Freesurfer](https://surfer.nmr.mgh.harvard.edu/); a popular brain segmentation tool developed by Athinoula A. Martinos Center for Biomedical Imaging at Massachusetts General Hospital.
 
+# SPM-fork
+This fork adds compatibility for spm within the app-freesurfer api as a temporary measure until we decide whether to spin it off into it's own thing (app-spm or something) or just keep it as is. 
+
 ### Authors
 - [Eduardo Diniz](https://github.com/eduardojdiniz)
-
+- [Linghai Wang](http://github.com/nxdens)
 ## Installing the App
 1. git clone this repo.
 
