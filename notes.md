@@ -130,17 +130,19 @@ where is setup_gpntk/fs used????
     "location": "gpn_paradox",
     "subjects": "/example/metadata/subjects.txt",
     "studydir": "/example",
-    "GPN_toolbox": "../PipelineScripts/GPN_Toolbox"
+    "GPN_toolbox": "/ocean/projects/med200002p/shared/PipelineScripts/GPN_Toolbox",
     "input_dirname": "MNI",
     "input_filename": "7T11.nii.gz",
 	"batch_directory": "example_batches",
     "batch_script":"/example/step05_encoding_preprocessing.m",
     "pipeline_steps": [
     	"realign",
-    	"coreg",
-    ],
+    	"coreg"
+    ]
 }
 ```
+
+subjects need to be formatted as subjectID/scanID within the subjects file
 
 lets only worry about realign for now before adding compatibility for other steps
 

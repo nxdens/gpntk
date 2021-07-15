@@ -1,0 +1,15 @@
+{
+    "job_name": "example",
+    "location": "gpn_paradox",
+    "subjects": "/ocean/projects/med200002p/liw82/metadata/subjects.txt",
+    "studydir": "/ocean/projects/med200002p/shared/data/fMRI",
+    "GPN_toolbox": "/ocean/projects/med200002p/shared/PipelineScripts/GPN_Toolbox",
+    "input_dirname": "MNI",
+    "input_filename": "7T11.nii.gz",
+	"batch_directory": "example_batches",
+    "batch_script":"/example/step05_encoding_preprocessing.m",
+    "pipeline_steps": [
+    	"realign",
+    	"coreg"
+    ]
+}

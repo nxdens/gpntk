@@ -53,7 +53,7 @@ APPDIR="$(dirname $LIBDIR)"
 # API bash script
 # ------------------------------------------------------------------------------
 API_PATH="${APPDIR}/src/API_GPNTK.sh"
-SPM_PATH="${APPDIR}/src/API_SPM.sh"
+
 # ------------------------------------------------------------------------------
 # Get FreeSurfer command arguments
 # ------------------------------------------------------------------------------
@@ -97,14 +97,6 @@ case "$cmd" in
     run )
         if [ -s $APPDIR/jobs/$jobdir/config.json ] ; then
             bash $API_PATH "$APPDIR/jobs/$jobdir/config.json"
-        else
-            usage
-            exit 1
-        fi
-        ;;
-    run_spm )
-        if [ -s $APPDIR/jobs/$jobdir/config.json ] ; then
-            bash $SPM_PATH "$APPDIR/jobs/$jobdir/config.json"
         else
             usage
             exit 1

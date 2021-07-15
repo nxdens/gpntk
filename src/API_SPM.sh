@@ -66,7 +66,7 @@ input_parser()
     # SLURM Queuing Options
     opts_AddMandatory '--job_name' 'job_name' 'name for job allocation' "a required argument; specify a name for the job allocation."
     opts_AddOptional  '--location' 'location' 'name of the HCP' "an optional argument; is the name of the High Performance Computing (HCP) cluster. Default: bridges2. Supported: psc_bridges2 | pitt_crc | rflab_workstation | rflab_cluster | gpn_paradox" "psc_bridges2"
-    opts_AddOptional '--partition' 'partition' 'request a specific partition' "an optional argument; request a specific partition (node) for the resource allocation in the HCP cluster specified in 'location'; At PSC Bridges-2 we have the RM and em clusters. At Pitt CRC we have smp and high-mem. Default: RM (psc_bridges2), smp (pitt_crc), standard (rflab_cluster), workstation (rflab_workstation)" ""
+    opts_AddOptional  '--partition' 'partition' 'request a specific partition' "an optional argument; request a specific partition (node) for the resource allocation in the HCP cluster specified in 'location'; At PSC Bridges-2 we have the RM and em clusters. At Pitt CRC we have smp and high-mem. Default: RM (psc_bridges2), smp (pitt_crc), standard (rflab_cluster), workstation (rflab_workstation)" ""
     opts_AddOptional  '--exclude' 'exclude' 'list of nodes to be excluded' "an optional argument; Explicitly exclude certain nodes from the resources granted to the job. Default: Depends on the partition. Usually None, but rflab_cluster_old exclude the new nodes and rflab_cluster_new exclude the old nodes." ""
     opts_AddOptional  '--mem_per_cpu' 'mem_per_cpu' 'specify the real memory requried per CPU' "an optional argument; specify the real memory required per CPU. Default: 2 GB RAM (we have 8 CPUs per subject and require a minimum of 8 GB RAM per subject, however -parallel triggers 16 CPUs per subject for some processing steps, hence allocate 2 GB of RAM)" "4G"
     opts_AddOptional  '--time' 'time' 'limit on the total run time of the job allocation' "an optional argument; When the time limit is reached, each task in each job step is sent SIGTERM followed by SIGKILL. Format: days-hours:minutes:seconds. Default: 6 hours" "0-6:00:00"
@@ -78,11 +78,11 @@ input_parser()
     # SPM Options
     opts_AddMandatory '--subjects' 'subjects' 'path to file with subject IDs or space-delimited list of subject IDs (identification strings) upon which to operate' "a required argument; path to a file with the IDs (identification strings) of the subjects to be processed (e.g. /data/ADNI/subjid_list.txt) or a space-delimited list of subject IDs (e.g., 'bert berta') upon which to operate. If subject directory doesn't exist in <DATASETDIR>, creates analysis directory <DATASETDIR>/<SUBJECT_ID> and converts one or more input volumes to MGZ format in SUBJECTDIR/<SUBJECT_ID>/mri/orig" "--s" "--sid" "--subjid"  "--subject" "--subjects_list" "--subjid_list"
     opts_AddMandatory '--studydir' 'studydir' 'specify study directory' "a required argument; is the path to the study directory (e.g. /data/ADNI)." "--ds"
-    opts_AddOptional '--subjectsdir' 'subjectsdir' 'specify subjects directory' "an optional argument; is the path to the subjects directory within <studydir> (e.g. /data/ADNI/raw). Default: raw" "raw" "--sd"
-    opts_AddOptional '--input_dirname' 'input_dirname' 'specify directory within subject directory where the volume is located' "an optional argument; is the directory within the subject directory where the input volume is located (e.g. /data/ADNI/<SUBJECT_ID>/MNI/<input_filename>, where MNI is the input_dirname supplied). Default: None" "" "i_dirname"
-    opts_AddOptional '--input_filename' 'input_filename' 'specify the volume filename within subject directory' "an optional argument; is the volume filename within the subject directory (e.g. /data/ADNI/<SUBJECT_ID>/<input_dirname>/t1w.nii.gz, where t1w.nii.gz is the input_filename supplied). Default: None" "" "i_filename"
+    opts_AddOptional  '--subjectsdir' 'specify subjects directory' "an optional argument; is the path to the subjects directory within <studydir> (e.g. /data/ADNI/raw). Default: none" "" "--sd"
+    opts_AddOptional  '--input_dirname' 'input_dirname' 'specify directory within subject directory where the volume is located' "an optional argument; is the directory within the subject directory where the input volume is located (e.g. /data/ADNI/<SUBJECT_ID>/MNI/<input_filename>, where MNI is the input_dirname supplied). Default: None" "" "i_dirname"
+    opts_AddOptional  '--input_filename' 'input_filename' 'specify the volume filename within subject directory' "an optional argument; is the volume filename within the subject directory (e.g. /data/ADNI/<SUBJECT_ID>/<input_dirname>/t1w.nii.gz, where t1w.nii.gz is the input_filename supplied). Default: None" "" "i_filename"
     opts_AddOptional  '--input' 'input' 'path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series' "an optional argument; path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series. If no input volumes are given and both input_dirname and input_filename are None, then it is assumed that the subject directory has already been created and that the data already exists in MGZ format in <DATASETDIR>/<SUBJID>/mri/orig as XXX.mgz where XXX is a 3-digit, zero-padded number. If input_dirname is supplied, input is assumed to be <DATASETDIR>/<SUBJID>/input_dirname/t1w.nii.gz. If input_filename is supplied, then input is assumed to be <DATASETDIR>/<SUBJID>/<input_filename>. If both <input_dirname> and <input_filename> are supplied, then input is assumed to be <DATASETDIR>/<SUBJID>/<input_dirname>/<input_filename>. Default: None." "" "--i"
-    opts_AddOptional   '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
+    opts_AddOptional  '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
     opts_AddOptional  '--batchfile' 'batchfile' 'set file used for generating batches. If not set then script will look for .mat batches in the batch directory' "an optional arguement; matlab file used to create batches if not already put in the batch directory toDefault:None" "" "--bf"
     opts_AddOptional  '--pipeline_steps' 'pipeline_steps' 'list of SPM steps that will be used in the pipeline. These must correspond to the GPN spm toolbox names.' "an optinoal argument; list of pipeline steps with names matching the GPN toolbox script name Default:None" "" "--pipeline"
     opts_AddOptional  '--debug' 'debug' 'print out lots of info' "an optional argument; if true, print out lots of information to error log file. Default: false" "false" "--v"
@@ -529,24 +529,24 @@ main()
   --timestamp=$timestamp
   --print=$print"
     #change this for spm
-    $queuing_command $APPDIR/src/BATCH_SPM.sh \
-        --subjects="${subjid_list_string}" \
-        --studydir="${studydir}" \
-        --subjectsdir="${DATASETDIR}" \
-        --input="${default_input}" \
-        --directives="${directives}" \
-        --expert_opts="${expert_opts}" \
-        --expert_opts_file="${expert_opts_file}" \
-        --T2="${default_t2}" \
-        --FLAIR="${default_flair}" \
-        --job_name="${job_name}" \
-        --location="${location}" \
-        --job_slots="${job_slots}" \
-        --output="${output}" \
-        --error="${error}" \
-        --timestamp="${timestamp}" \
-        --print="${print}"
-
+    #$queuing_command $APPDIR/src/BATCH_SPM.sh \
+    #    --subjects="${subjid_list_string}" \
+    #    --studydir="${studydir}" \
+    #    --subjectsdir="${DATASETDIR}" \
+    #    --input="${default_input}" \
+    #    --directives="${directives}" \
+    #    --expert_opts="${expert_opts}" \
+    #    --expert_opts_file="${expert_opts_file}" \
+    #    --T2="${default_t2}" \
+    #    --FLAIR="${default_flair}" \
+    #    --job_name="${job_name}" \
+    #    --location="${location}" \
+    #    --job_slots="${job_slots}" \
+    #    --output="${output}" \
+    #    --error="${error}" \
+    #    --timestamp="${timestamp}" \
+    #    --print="${print}"
+    
     wait
 
     log_Msg "# END: main"
