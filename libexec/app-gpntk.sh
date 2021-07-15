@@ -81,6 +81,10 @@ while true; do
             shift
             break
             ;;
+        run_spm )
+            cmd="run_spm"
+            shift
+            break
         * )
             usage
             exit 1
@@ -93,7 +97,9 @@ done
 # ------------------------------------------------------------------------------
 case "$cmd" in
     help )
-        bash $API_PATH --help ;;
+        bash $API_PATH --help 
+        bash $SPM_PATH --help
+        ;;
     run )
         if [ -s $APPDIR/jobs/$jobdir/config.json ] ; then
             bash $API_PATH "$APPDIR/jobs/$jobdir/config.json"

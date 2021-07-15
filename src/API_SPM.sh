@@ -19,7 +19,7 @@ set -eu
 usage()
 {
     echo "
-$log_ToolName: API script for running freesurfer on Slurm managed computing clusters
+$log_ToolName: API script for running SPM on Slurm managed computing clusters (use run_spm command)
 
 Usage: $log_ToolName
                 SLURM queuing options
@@ -546,7 +546,7 @@ main()
     #    --error="${error}" \
     #    --timestamp="${timestamp}" \
     #    --print="${print}"
-    
+
     wait
 
     log_Msg "# END: main"
