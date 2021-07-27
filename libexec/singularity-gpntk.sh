@@ -150,6 +150,7 @@ done
 # (e.g. /tmp and $HOME) instead of sharing filesystems from your host
 case "$cmd" in
     bash )
+        echo "singularity run -c -e -B $APP_LICENSE -B $BINDPATH $SIF_PATH /bin/bash --rcfile /etc/profile $args"
         singularity run -c -e \
             -B $APP_LICENSE -B $BINDPATH $SIF_PATH $args
         ;;

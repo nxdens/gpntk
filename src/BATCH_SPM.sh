@@ -20,15 +20,14 @@ fi
 usage()
 {
     echo "
-$log_ToolName: API script for running freesurfer on Slurm managed computing clusters
+$log_ToolName: API script for running SPM on Slurm managed computing clusters
 
 Usage: $log_ToolName
 
-                Freesurfer Options
+                SPM Options
                     --subjects=<path or list>
                     --studydir=<study directory>                   Default: None
                     --subjectsdir=<subjects directory>             Default: None
-                    [--input=<path to DICOM or NIFTI>]             Default: None
                     [--batchdir=<batch directory>]                 Default: None
                     [--batchfile=<path to batch file>]             Default: None
                     [--pipeline_steps=<list of pipeline steps>]    Default: None
@@ -44,7 +43,7 @@ Usage: $log_ToolName
 
         PARAMETERs are [ ] = optional; < > = user supplied value
 
-        Slurm values default to running FreeSurfer at PSC Bridges-2.
+        Slurm values default to running SPM at PSC Bridges-2.
     "
     # automatic argument descriptions
     opts_ShowArguments
@@ -57,29 +56,26 @@ Usage: $log_ToolName
 input_parser()
 {
     # Load input parser functions
-    #SRC="$(dirname $(readlink -f ${BASH_SOURCE[0]:-$0}))"
-    #APPDIR=$(dirname $SRC)
-    #UTILS=$APPDIR/lib
+    SRC="$(dirname $(readlink -f ${BASH_SOURCE[0]:-$0}))"
+    APPDIR=$(dirname $SRC)
+    UTILS=$APPDIR/lib
 
     set -a
     . ${UTILS}/log.shlib       # Logging related functions
     . ${UTILS}/opts.shlib "$@" # Command line option functions
 
-    # Freesurfer Options
+    # SPM Options
     opts_AddMandatory '--subjects' 'subjects' 'path to file with subject IDs or space-delimited list of subject IDs (identification strings) upon which to operate' "a required argument; path to a file with the IDs (identification strings) of the subjects to be processed (e.g. /data/ADNI/subjid_list.txt) or a space-delimited list of subject IDs (e.g., 'bert berta') upon which to operate. If subject directory doesn't exist in SUBJECTDIR, creates analysis directory SUBJECTSDIR/<SUBJECT_ID> and converts one or more input volumes to MGZ format in SUBJECTDIR/<SUBJECT_ID>/mri/orig" "--s" "--sid" "--subjid"  "--subject" "--subjects_list" "--subjid_list"
     opts_AddMandatory '--studydir' 'studydir' 'specify study directory' "a required argument; is the path to the study directory (e.g. /data/ADNI)." "--ds"
     opts_AddMandatory '--subjectsdir' 'subjectsdir' 'specify subjects directory' "a required argument; is the path to the subjects directory (e.g. /data/ADNI)." "--sd"
-    opts_AddOptional  '--input' 'input' 'path relative to <subjectsdir>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series' "an optional argument; <subjectsdir>/<SUBJID> single DICOM file from a T1 MRI series or a single NIFTI file from a series. If no input volumes are given, then it is assumed that the subject directory has already been created and that the data already exists in MGZ format in <subjectsdir>/<SUBJID>/mri/orig as XXX.mgz where XXX is a 3-digit, zero-padded number.Default: None." "" "--i"
-    opts_AddOptional   '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
-    opts_AddOptional  '--batchfile' 'batchfile' 'set file used for generating batches. If not set then script will look for .mat batches in the batch directory' "an optional arguement; matlab file used to create batches if not already put in the batch directory toDefault:None" "" "--bf"
-    opts_AddOptional  '--pipeline_steps' 'pipeline_steps' 'list of SPM steps that will be used in the pipeline. These must correspond to the GPN spm toolbox names.' "an optinoal argument; list of pipeline steps with names matching the GPN toolbox script name Default:None" "" "--pipeline"
+    opts_AddOptional  '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
     
     # Miscellaneous Options
     opts_AddOptional '--job_name' 'job_name' 'name for job allocation' "an optional argument; specify a name for the job allocation. Default: GPN (RFLab)" "GPN"
     opts_AddOptional  '--location' 'location' 'name of the HCP' "an optional argument; is the name of the High Performance Computing (HCP) cluster. Default: bridges2. Supported: psc_bridges2 | pitt_crc | rflab_workstation | rflab_cluster | gpn_paradox" "psc_bridges2"
     opts_AddOptional  '--job_slots' 'job_slots' 'max number of active jobs' "an optional argument; The maximum number of jobs active at once  Default: unlimited" ""
-    opts_AddOptional  '--output' 'output' 'Name of output file' "an optional argument; the name of the output file. Default: ./log/app-freesurfer/<timestamp>_<job_name>_-_<SUBJID>.out" ""
-    opts_AddOptional  '--error' 'error' 'Name of error file' "an optional argument; the name of the error file. Default: ./log/app-freesurfer/<timestamp>_<job_name>_-_<SUBJID>.err" ""
+    opts_AddOptional  '--output' 'output' 'Name of output file' "an optional argument; the name of the output file. Default: ./log/gpntk/<timestamp>_<job_name>_-_<SUBJID>.out" ""
+    opts_AddOptional  '--error' 'error' 'Name of error file' "an optional argument; the name of the error file. Default: ./log/gpntk/<timestamp>_<job_name>_-_<SUBJID>.err" ""
     opts_AddOptional  '--timestamp' 'timestamp' 'date and time job execution started' "an optional argument; the date and time the job execution started (YYYYMMDDHHMMSSZ). Default: current date time" "$(date -u +%Y%m%d%H%M%S%Z)"
     opts_AddOptional  '--print' 'print' 'Perform a dry run' "an optional argument; If print is not a null or empty string variable, then this script and other scripts that it calls will simply print out the commands and with options it otherwise would run. This printing will be done using the command specified in the print variable, e.g., echo" ""
 
@@ -135,11 +131,11 @@ setup_slurm()
     NODE=$SLURMD_NODENAME
 
     # SLURM_SUBMIT_DIR is the directory from which the script was invoked
-    # (e.g. /ocean/projects/med200002p/shared/app-freesurfer/src)
-    # (e.g. /bgfs/tibrahim/edd32/proj/app-freesurfer/src)
+    # (e.g. /ocean/projects/med200002p/shared/gpntk/src)
+    # (e.g. /bgfs/tibrahim/edd32/proj/gpntk/src)
     # SERVER_APPDIR is the parent directory from which the script was invoked
-    # (e.g. /ocean/projects/med200002p/shared/app-freesurfer)
-    # (e.g. /bgfs/tibrahim/edd32/proj/app-freesurfer)
+    # (e.g. /ocean/projects/med200002p/shared/gpntk)
+    # (e.g. /bgfs/tibrahim/edd32/proj/gpntk)
     SERVER_APPDIR="$(dirname $SLURM_SUBMIT_DIR)"
 
     # Looks in the list of IDs and get the correspoding subject ID for this job
@@ -213,15 +209,16 @@ setup_parallel()
     # Use the process ID for the shell as surrogate
     SLURM_ARRAY_JOB_ID=$$
     # SLURM_SUBMIT_DIR is the directory from which the script was invoked
-    # (e.g. /home/dinize@acct.upmchs.net/proj/app-freesurfer/src)
+    # (e.g. /home/dinize@acct.upmchs.net/proj/gpntk/src)
     # SERVER_APPDIR is the parent directory from which the script was invoked
-    # (e.g. /home/dinize@acct.upmchs.net/proj/app-freesurfer)
+    # (e.g. /home/dinize@acct.upmchs.net/proj/gpntk)
     SLURM_SUBMIT_DIR="$APPDIR/src"
     SERVER_APPDIR="$(dirname $SLURM_SUBMIT_DIR)"
 
     # ----------------------------------------------------------
     #  Load Function Libraries
     # ----------------------------------------------------------
+
     SRC=$SERVER_APPDIR/src
     FREESURFER=$SERVER_APPDIR/bin/freesurfer
     UTILS=$SERVER_APPDIR/lib
@@ -259,9 +256,9 @@ setup_parallel()
     echo "Transfer files from server '$SERVER' to node '$NODE'"
     echo "----------------------------------------------------------"
     # Copy FPP scripts from server to node, creating whatever directories required
-    log_Msg "Copy app-freesurfer"
+    log_Msg "Copy gpntk"
     rsync_local $SERVER_APPDIR $NODEDIR
-    NODE_APPDIR=$NODEDIR/app-freesurfer
+    NODE_APPDIR=$NODEDIR/gpntk
 
     # Copy subject data from server to node, creating whatever directories required
     log_Msg "Copy subject data"
@@ -307,10 +304,10 @@ setup_bridges2()
     echo "----------------------------------------------------------"
     echo "Set environment variables for required software:"
     echo "----------------------------------------------------------"
-    FREESURFER=$SERVER_APPDIR/bin/gpntk
+    SPM=$SERVER_APPDIR/bin/singularity-gpntk
 
-    if [[ ! -L $FREESURFER ]] || [[ ! -e $FREESURFER ]] ; then
-        unset FREESURFER
+    if [[ ! -L $SPM ]] || [[ ! -e $SPM ]] ; then
+        unset SPM
     fi
 
     SSH=$(which ssh)
@@ -320,7 +317,7 @@ setup_bridges2()
     log_Check_Env_Var SSH
     log_Check_Env_Var RSYNC
     log_Check_Env_Var SINGULARITY
-    log_Check_Env_Var FREESURFER
+    log_Check_Env_Var SPM
 
     echo "----------------------------------------------------------"
     echo "Copy subject data to temporary folder"
@@ -335,10 +332,10 @@ setup_bridges2()
     echo "Transfer files from server '$SERVER' to node '$NODE'"
     echo "----------------------------------------------------------"
     # Copy FPP scripts from server to node, creating whatever directories required
-    log_Msg "Copy app-freesurfer"
+    log_Msg "Copy gpntk"
     #rsync_to_bridges2 $SERVER_APPDIR $NODEDIR
     rsync_local $SERVER_APPDIR $NODEDIR
-    NODE_APPDIR=$NODEDIR/app-freesurfer
+    NODE_APPDIR=$NODEDIR/gpntk
 
     # Copy subject data from server to node, creating whatever directories required
     log_Msg "Copy subject data"
@@ -346,7 +343,7 @@ setup_bridges2()
     SERVER_DATASETDIR=$subjectsdir
     SERVER_SUBJECTDIR="${SERVER_DATASETDIR}/${SUBJID}"
 
-    # if input is not empty, then it's the first time freesurfer is run, copy
+    # if input is not empty, then it's the first time spm is run, copy
     # subjid folder contents
     NODE_SUBJECTDIR=$NODEDIR/subject && mkdir -p $NODE_SUBJECTDIR
     if [ ! -z $input ] ; then
@@ -486,7 +483,7 @@ _rsync()
 
     # Put rsync command in a loop to insure that it completes; try 20 times
     while [ $RC -ne 0 ] && [ $n -lt $nattempts ] ; do
-        # --exclude '*.sif' prevents freesurfer image from being transfered
+        # --exclude '*.sif' prevents spm image from being transfered
         # -oMACS=umac-65@openssh.com will use a faster data validation algorithm
         $RSYNC -rlpDPq \
             --exclude '*.sif' \
@@ -510,51 +507,12 @@ main()
     log_Msg "# START: main"
 
     echo "----------------------------------------------------------"
-    echo "Creating app-freesurfer command"
+    echo "Creating gpntk command"
     echo "----------------------------------------------------------"
-    CONTAINER_APPDIR="/app-freesurfer"
+    CONTAINER_APPDIR="/gpntk"
     CONTAINER_SUBJECTDIR="/subject"
     CONTAINER_LOGDIR="/log"
     CONTAINER_SUBJID="${SUBJID}"
-    if [ ! -z $expert_opts_file ] ; then
-        CONTAINER_XOPTS_FILE="$CONTAINER_APPDIR/jobs/${job_name}/${timestamp}/etc/expert_-_${job_name}_-_${timestamp}.opts"
-    else
-        CONTAINER_XOPTS_FILE=""
-    fi
-
-    if [ ! -z $input ] ; then
-        CONTAINER_INPUT=$CONTAINER_SUBJECTDIR/$input
-    else
-        CONTAINER_INPUT=""
-        if [ ! -z $expert_opts_file ] ; then
-            PRE_XOPTS_FILE="$NODE_SUBJECTDIR/${SUBJID}/scripts/expert-options"
-            NEW_XOPTS_FILE="$NODE_APPDIR/jobs/${job_name}/${timestamp}/etc/expert_-_${job_name}_-_${timestamp}.opts"
-            # if there is a pre-existing expert options file and an expert options
-            # file was specified on the command-line, append the contents of the
-            # pre-existing file with the newly specified one and set -xopts-overwrite
-            if [ -f $PRE_XOPTS_FILE ] ; then
-                cat $PRE_XOPTS_FILE $NEW_XOPTS_FILE > tmp
-                # Remove repeated lines from expert options file
-                sort -u tmp -o $NEW_XOPTS_FILE
-                rm -f tmp
-                directives+=" -xopts-overwrite"
-            fi
-        else
-            CONTAINER_XOPTS_FILE=""
-        fi
-    fi
-
-    if [ ! -z $T2 ] ; then
-        CONTAINER_T2=$CONTAINER_SUBJECTDIR/$T2
-    else
-        CONTAINER_T2=""
-    fi
-
-    if [ ! -z $FLAIR ] ; then
-        CONTAINER_FLAIR=$CONTAINER_SUBJECTDIR/$FLAIR
-    else
-        CONTAINER_FLAIR=""
-    fi
 
     APP_LICENSE="$NODE_APPDIR/etc/license.txt"
     # We do not copy singularity image over to nodes
@@ -563,7 +521,7 @@ main()
     # located at the expected path.
     SIF_PATH="$SERVER_APPDIR/libexec/gpntk.sif"
 
-    singularity_cmd="$FREESURFER"
+    singularity_cmd="$SPM"
     singularity_cmd+=" -L $APP_LICENSE"
     singularity_cmd+=" -B $NODE_APPDIR:$CONTAINER_APPDIR"
     singularity_cmd+=" -B $NODE_SUBJECTDIR:$CONTAINER_SUBJECTDIR"
@@ -580,12 +538,7 @@ main()
     echo "$CONTAINER_APPDIR/src/APP_SPM.sh
   --subjid=$CONTAINER_SUBJID
   --sd=$CONTAINER_SUBJECTDIR
-  --i=$CONTAINER_INPUT
-  --T2=$CONTAINER_T2
-  --FLAIR=$CONTAINER_FLAIR
-  --directives=$directives
-  --expert_opts=$expert_opts
-  --expert_opts_file=$CONTAINER_XOPTS_FILE
+  --batchdir=${batchdir}
   --print=${print}
   1> $NODE_LOGDIR/APP_-_$SUBJID.out
   2> $NODE_LOGDIR/APP_-_$SUBJID.err"
@@ -596,12 +549,7 @@ main()
     $CONTAINER_APPDIR/src/APP_SPM.sh \
     --subjid="${CONTAINER_SUBJID}" \
     --sd="${CONTAINER_SUBJECTDIR}" \
-    --i="$CONTAINER_INPUT" \
-    --T2="${CONTAINER_T2}" \
-    --FLAIR="${CONTAINER_FLAIR}" \
-    --directives="${directives// /,}" \
-    --expert_opts="${expert_opts// /,}" \
-    --expert_opts_file="${CONTAINER_XOPTS_FILE}" \
+    --batchdir="${batchdir}"
     --print="${print// /,}" \
     1> "${NODE_LOGDIR}/APP_-_${SUBJID}.out" \
     2> "${NODE_LOGDIR}/APP_-_${SUBJID}.err"
@@ -617,7 +565,7 @@ clean()
     echo "Transfer files from node '$NODE' to server '$SERVER':"
     echo "----------------------------------------------------------"
 
-    log_Msg "Copy freesurfer data from node"
+    log_Msg "Copy SPM data from node"
     case "$location" in
         #psc_bridges2 ) rsync_cmd=rsync_from_bridges2 ;;
         psc_bridges2 ) rsync_cmd=rsync_local ;;
@@ -631,8 +579,8 @@ clean()
         no_slurm_serial ) rsync_cmd=rsync_local ;;
     esac
 
-    SERVER_STUDY_LOGDIR="${SERVER_STUDYDIR}/metadata/app-freesurfer/jobs/${job_name}/${timestamp}/log"
-    SERVER_SUBJID_JOBDIR="$SERVER_STUDYDIR/processed/app-freesurfer/jobs/${job_name}/${timestamp}/${SUBJID}"
+    SERVER_STUDY_LOGDIR="${SERVER_STUDYDIR}/metadata/gpntk/jobs/${job_name}/${timestamp}/log"
+    SERVER_SUBJID_JOBDIR="$SERVER_STUDYDIR/processed/gpntk/jobs/${job_name}/${timestamp}/${SUBJID}"
     log_Msg "Move subject data to permanent processed data directory:\n$SERVER_SUBJID_JOBDIR"
     log_Msg "mkdir -p $SERVER_SUBJID_JOBDIR"
     mkdir -p $SERVER_SUBJID_JOBDIR
@@ -746,8 +694,8 @@ run_main_serial()
 input_parser "$@"
 
 if [ -z $output ] || [ -z $error ] ; then
-    output="./log/app-freesurfer/${job_name}/${timestamp}/BATCH_-_subjid.out"
-    error="./log/app-freesurfer/${job_name}/${timestamp}/BATCH_-_subjid.err"
+    output="./log/gpntk/${job_name}/${timestamp}/BATCH_-_subjid.out"
+    error="./log/gpntk/${job_name}/${timestamp}/BATCH_-_subjid.err"
 fi
 
 case "$location" in

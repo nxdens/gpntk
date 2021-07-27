@@ -85,6 +85,7 @@ while true; do
             cmd="run_spm"
             shift
             break
+            ;;
         * )
             usage
             exit 1
