@@ -2,7 +2,9 @@ function x = make_batches(subjects,studydir,batchdir,step_names)
     study_dir = studydir;
     subject_list = subjects; 
     save_dir = batchdir;
-
+    disp(study_dir)
+    disp(subject_list)
+    disp(save_dir)
     % set gpntoolkit path
     gpn_toolkit_path = '/ocean/projects/med200002p/shared/GPN_Toolbox/'
     addpath(gpn_toolkit_path)

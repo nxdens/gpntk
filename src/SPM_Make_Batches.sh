@@ -41,7 +41,8 @@ main()
     
     # want this to eventually be spm12
     module load spm12 
-    spm function "cd('$BATHCLOC'); $BATCHNAME(\"$subjects\", \"$studydir\",\"$batchdir\", \"$step_names\"); exit;"
+    cd $BATHCLOC
+    spm eval "$BATCHNAME(\"$subjects\", \"$studydir\",\"$batchdir\", \"$step_names\");"
 }
 
 setup

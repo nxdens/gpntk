@@ -534,9 +534,10 @@ main()
   --subjid=$CONTAINER_SUBJID
   --sd=$CONTAINER_SUBJECTDIR
   --batchdir=${batchdir}
-  --print=${print}
-  1> $NODE_LOGDIR/APP_-_$SUBJID.out
-  2> $NODE_LOGDIR/APP_-_$SUBJID.err"
+  --step_names="${step_names}" 
+  --print=${print}"
+  #1> $NODE_LOGDIR/APP_-_$SUBJID.out
+  #2> $NODE_LOGDIR/APP_-_$SUBJID.err"
 
     #replace spaces with commas in space separated options
     #this is replaced back to spaces in APP_SPM.sh
@@ -546,9 +547,9 @@ main()
     --sd="${CONTAINER_SUBJECTDIR}" \
     --batchdir="${batchdir}" \
     --step_names="${step_names}" \
-    --print="${print// /,}" \
-    1> "${NODE_LOGDIR}/APP_-_${SUBJID}.out" \
-    2> "${NODE_LOGDIR}/APP_-_${SUBJID}.err"
+    --print="${print// /,}" 
+    #1> "${NODE_LOGDIR}/APP_-_${SUBJID}.out" \
+    #2> "${NODE_LOGDIR}/APP_-_${SUBJID}.err"
 
     log_Msg "# END: main"
 }

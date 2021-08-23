@@ -79,16 +79,9 @@ input_parser()
     opts_AddMandatory '--subjects' 'subjects' 'path to file with subject IDs or space-delimited list of subject IDs (identification strings) upon which to operate' "a required argument; path to a file with the IDs (identification strings) of the subjects to be processed (e.g. /data/ADNI/subjid_list.txt) or a space-delimited list of subject IDs (e.g., 'bert berta') upon which to operate. If subject directory doesn't exist in <DATASETDIR>, creates analysis directory <DATASETDIR>/<SUBJECT_ID> and converts one or more input volumes to MGZ format in SUBJECTDIR/<SUBJECT_ID>/mri/orig" "--s" "--sid" "--subjid"  "--subject" "--subjects_list" "--subjid_list"
     opts_AddMandatory '--studydir' 'studydir' 'specify study directory' "a required argument; is the path to the study directory (e.g. /data/ADNI)." "--ds"
     opts_AddOptional  '--subjectsdir' 'subjectsdir' "an optional argument; is the path to the subjects directory within <studydir> (e.g. /data/ADNI/raw). Default: none" "--subd"
-    #opts_AddOptional  '--input_dirname' 'input_dirname' 'specify directory within subject directory where the volume is located' "an optional argument; is the directory within the subject directory where the input volume is located (e.g. /data/ADNI/<SUBJECT_ID>/MNI/<input_filename>, where MNI is the input_dirname supplied). Default: None" "" "i_dirname"
-    #opts_AddOptional  '--input_filename' 'input_filename' 'specify the volume filename within subject directory' "an optional argument; is the volume filename within the subject directory (e.g. /data/ADNI/<SUBJECT_ID>/<input_dirname>/t1w.nii.gz, where t1w.nii.gz is the input_filename supplied). Default: None" "" "i_filename"
-    # TODO: add optional for input suffixes for coregistration or for scanID prefix
-    #opts_AddOptional  '--input' 'input' 'path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series' "an optional argument; path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series. If no input volumes are given and both input_dirname and input_filename are None, then it is assumed that the subject directory has already been created and that the data already exists in MGZ format in <DATASETDIR>/<SUBJID>/mri/orig as XXX.mgz where XXX is a 3-digit, zero-padded number. If input_dirname is supplied, input is assumed to be <DATASETDIR>/<SUBJID>/input_dirname/t1w.nii.gz. If input_filename is supplied, then input is assumed to be <DATASETDIR>/<SUBJID>/<input_filename>. If both <input_dirname> and <input_filename> are supplied, then input is assumed to be <DATASETDIR>/<SUBJID>/<input_dirname>/<input_filename>. Default: None." "" "--i"
-    # array of folders containing the batches for now until we generate the batches as well
     opts_AddOptional  '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. Default: None" ""
-    
     opts_AddOptional  '--batch_script' 'batch_script' 'set file used for generating batches. If not set then script will look for .mat batches in the batch directory' "an optional arguement; matlab file used to create batches if not already put in the batch directory toDefault:None" ""
     opts_AddOptional  '--step_names' 'step_names' 'Space seperated string with the names of all the folders that will be used for processing' "an optional arguement; Required for batch creation. Default: none" "" ""
-    #used to determine file structure
     opts_AddOptional  '--debug' 'debug' 'print out lots of info' "an optional argument; if true, print out lots of information to error log file. Default: false" "false" "--v"
 
     # Miscellaneous Options
@@ -121,6 +114,7 @@ parse_json()
 
     for param in ${params[@]} ; do
         param_value=`jq -r '.'"$param"' | select(.!=null)' $jsonfile`
+        #log_Msg $param": "$param_value
         if [ ! -z $param_value ] ; then
             API_ARGS+=("--$param=$param_value")
         fi
@@ -190,7 +184,7 @@ setup()
     jsonfile=$1
     parse_json
     echo "###"
-    echo "${API_ARGS[@]}"
+    log_Msg "${API_ARGS[@]}"
     input_parser "${API_ARGS[@]}"
 
     log_Msg "# START: setup"
@@ -259,7 +253,7 @@ setup()
             rm -rf $STUDY_JOBDIR/${clean_instance}
         fi
     fi
-
+    #make_batches
     JOB_LOGDIR="${APPDIR}/jobs/${job_name}/${timestamp}/log"
     mkdir -p $JOB_LOGDIR
     log_Msg "JOB_LOGDIR:\n$JOB_LOGDIR"
@@ -412,20 +406,29 @@ array_contains()
 }
 make_batches()
 {
-    GPNTK = /ocean/projects/med200002p/liw82/gpntk/bin/singularity-gpntk
-    singularity_cmd = $GPNTK  
+    GPNTK=/ocean/projects/med200002p/liw82/gpntk/bin/singularity-gpntk
+    singularity_cmd=$GPNTK  
     #bind path to allocation storage
-    singularity_cmd += " -B /ocean/projects/med200002p/"
-    singularity_cmd += " -S /ocean/projects/med200002p/shared/gpntk/libexec/gpntk.sif "
-    singularity_cmd += " bash"
+    singularity_cmd+=" -B $studydir"
+    singularity_cmd+=" -B /ocean/projects/med200002p/liw82/gpntk/"
+    singularity_cmd+=" -S /ocean/projects/med200002p/shared/gpntk/libexec/gpntk.sif "
+    singularity_cmd+=" bash"
+    log_Msg "$singularity_cmd 
+        $APPDIR/src/SPM_Make_Batches.sh 
+        --subjects=$subjects 
+        --studydir=$studydir 
+        --batchdir=$batchdir 
+        --batchscript=$batch_script 
+        --step_names=$step_names"
     #somehow need to get module to work
     $singularity_cmd \
-    $APPDIR/src/SPN_Make_Batches.sh \
-        --subjects="${subjid_list_string}" \
+    $APPDIR/src/SPM_Make_Batches.sh \
+        --subjects="${subjects}" \
         --studydir="${studydir}" \
         --batchdir="${batchdir}" \
         --batchscript="${batch_script}" \
         --step_names="${step_names}"
+    log_Msg "Finished making batches"
 
 }
 get_queuing_command()
@@ -525,6 +528,7 @@ main()
   --subjects=${subjid_list[@]}
   --subjectsdir=$DATASETDIR
   --batchdir=$batchdir
+  --step_names="${step_names}" 
   --job_name=$job_name
   --location=$location
   --job_slots=$job_slots
