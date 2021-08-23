@@ -56,9 +56,9 @@ Usage: $log_ToolName
 input_parser()
 {
     # Load input parser functions
-    SRC="$(dirname $(readlink -f ${BASH_SOURCE[0]:-$0}))"
-    APPDIR=$(dirname $SRC)
-    UTILS=$APPDIR/lib
+    #SRC="$(dirname $(readlink -f ${BASH_SOURCE[0]:-$0}))"
+    #APPDIR=$(dirname $SRC)
+    #UTILS=$APPDIR/lib
 
     set -a
     . ${UTILS}/log.shlib       # Logging related functions
@@ -69,6 +69,7 @@ input_parser()
     opts_AddMandatory '--studydir' 'studydir' 'specify study directory' "a required argument; is the path to the study directory (e.g. /data/ADNI)." "--ds"
     opts_AddMandatory '--subjectsdir' 'subjectsdir' 'specify subjects directory' "a required argument; is the path to the subjects directory (e.g. /data/ADNI)." "--sd"
     opts_AddOptional  '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
+    opts_AddOptional  '--step_names' 'step_names' 'Space seperated string with the names of all the folders that will be used for processing' "an optional arguement; Required for batch creation. Default: none" "" ""
     
     # Miscellaneous Options
     opts_AddOptional '--job_name' 'job_name' 'name for job allocation' "an optional argument; specify a name for the job allocation. Default: GPN (RFLab)" "GPN"
@@ -319,6 +320,10 @@ setup_bridges2()
     log_Check_Env_Var SINGULARITY
     log_Check_Env_Var SPM
 
+    #need to get rid of all the transfers since the batches aren't setup for that and also the gpn scripts aren't either
+    #unfortunately gpn scripts do all subject batches at once for now 
+    #not a huge deal since this is pretty fast
+
     echo "----------------------------------------------------------"
     echo "Copy subject data to temporary folder"
     echo "----------------------------------------------------------"
@@ -346,14 +351,7 @@ setup_bridges2()
     # if input is not empty, then it's the first time spm is run, copy
     # subjid folder contents
     NODE_SUBJECTDIR=$NODEDIR/subject && mkdir -p $NODE_SUBJECTDIR
-    if [ ! -z $input ] ; then
-        #rsync_to_bridges2 $SERVER_SUBJECTDIR/ $NODE_SUBJECTDIR
-        rsync_local $SERVER_SUBJECTDIR/ $NODE_SUBJECTDIR
-    # else input is empty, then it's a re-run, copy subjid folder
-    else
-        #rsync_to_bridges2 $SERVER_SUBJECTDIR $NODE_SUBJECTDIR
-        rsync_local $SERVER_SUBJECTDIR $NODE_SUBJECTDIR
-    fi
+    rsync_local $SERVER_SUBJECTDIR/ $NODE_SUBJECTDIR
 
     # Log paths
     SERVER_LOGDIR="$SERVER_APPDIR/jobs/${job_name}/${timestamp}/log"
@@ -466,11 +464,9 @@ _rsync()
 {
     source_directory=$1
     target_directory=$2 # e.g., data.bridges2.psc.edu:target_directory
-
     local RC=1
     local n=0
     local nattempts=20
-
     # --------------------------------------------------------------
     # Log rsync
     # --------------------------------------------------------------
@@ -480,8 +476,7 @@ _rsync()
      --exclude '*.git/'
      -e 'ssh -q -o BatchMode=yes'
      $source_directory $target_directory"
-
-    # Put rsync command in a loop to insure that it completes; try 20 times
+        # Put rsync command in a loop to insure that it completes; try 20 times
     while [ $RC -ne 0 ] && [ $n -lt $nattempts ] ; do
         # --exclude '*.sif' prevents spm image from being transfered
         # -oMACS=umac-65@openssh.com will use a faster data validation algorithm
@@ -489,7 +484,6 @@ _rsync()
             --exclude '*.sif' \
             --exclude '*.git/' \
             -e 'ssh -q -o BatchMode=yes' $source_directory $target_directory
-
         RC=$?
         let n=n+1
         echo $n
@@ -522,7 +516,8 @@ main()
     SIF_PATH="$SERVER_APPDIR/libexec/gpntk.sif"
 
     singularity_cmd="$SPM"
-    singularity_cmd+=" -L $APP_LICENSE"
+    #singularity_cmd+=" -L $APP_LICENSE"
+    singularity_cmd+=" -B /ocean/projects/med200002p/liw82/"
     singularity_cmd+=" -B $NODE_APPDIR:$CONTAINER_APPDIR"
     singularity_cmd+=" -B $NODE_SUBJECTDIR:$CONTAINER_SUBJECTDIR"
     singularity_cmd+=" -S $SIF_PATH"
@@ -549,7 +544,8 @@ main()
     $CONTAINER_APPDIR/src/APP_SPM.sh \
     --subjid="${CONTAINER_SUBJID}" \
     --sd="${CONTAINER_SUBJECTDIR}" \
-    --batchdir="${batchdir}"
+    --batchdir="${batchdir}" \
+    --step_names="${step_names}" \
     --print="${print// /,}" \
     1> "${NODE_LOGDIR}/APP_-_${SUBJID}.out" \
     2> "${NODE_LOGDIR}/APP_-_${SUBJID}.err"
@@ -567,7 +563,7 @@ clean()
 
     log_Msg "Copy SPM data from node"
     case "$location" in
-        #psc_bridges2 ) rsync_cmd=rsync_from_bridges2 ;;
+        psc_bridges2 ) rsync_cmd=rsync_from_bridges2 ;;
         psc_bridges2 ) rsync_cmd=rsync_local ;;
         pitt_crc ) rsync_cmd=rsync_from_crc ;;
         rflab_cluster_old ) rsync_cmd=rsync_from_cluster ;;

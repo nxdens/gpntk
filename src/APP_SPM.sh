@@ -1,4 +1,11 @@
 #!/bin/bash
+# source before everything else
+echo ""
+echo "####################################################"
+echo "################ START: APP_GPNTK.sh ##################"
+echo "####################################################"
+
+source /etc/profile
 
 trap 'halt' SIGINT SIGKILL SIGTERM SIGSEGV EXIT
 
@@ -42,6 +49,7 @@ input_parser()
     opts_AddMandatory '--subjid' 'subjid' 'Subject ID' "a required value; the subject name" "--s" "--sid" "--subject"
     opts_AddOptional '--subjectdir' 'subjectdir' 'Directory with data' "an optional value; the path to the directory holding subject data. Default: None" "" "--sd"
     opts_AddOptional '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. If using script to generate them please pass the script to the --batchfile arguement. Default: None" "" "--bd"
+    opts_AddOptional  '--step_names' 'step_names' 'Space seperated string with the names of all the folders that will be used for processing' "an optional arguement; Required for batch creation. Default: none" "" ""
     opts_AddOptional '--print' 'print' 'Perform a dry run' "an optional argument; If PRINT is not a null or empty string variable, then this script and other scripts that it calls will simply print out the commands and with options it otherwise would run. This printing will be done using the command specified in the PRINT variable, e.g., echo" ""
 
     opts_ParseArguments "$@"
@@ -65,16 +73,16 @@ setup()
     # ------------------------------------------------------------------------------
     #  Load Function Libraries
     # ------------------------------------------------------------------------------
-    source /etc/profile
-    UTILS="/ocean/projects/med200002p/liw82/app-gpntk/lib"
+    
+    UTILS="/gpntk/lib"
     set -a
     . ${UTILS}/log.shlib       # Logging related functions
     . ${UTILS}/opts.shlib "$@" # Command line option functions
     set +a
 
     log_Msg "# START: setup"
-    module purge
-    module load spm12
+    
+    
     log_Msg "Platform Information Follows: "
     # ------------------------------------------------------------------------------
     uname -a
@@ -82,11 +90,9 @@ setup()
     # ------------------------------------------------------------------------------
     log_Msg "Show and Verify required environment variables are set:"
     # ------------------------------------------------------------------------------
-    log_Check_Env_Var SUBJECTS_DIR
+    
     log_Check_Env_Var UTILS
 
-    log_Msg "Get batch path"
-    BATCH_PATH="./step_03_motion_correction/"${subjid//\//_}".mat"
     log_Msg "# END: setup"
 }
 # ------------------------------------------------------------------------------
@@ -99,28 +105,37 @@ main()
     # --------------------------------------------------------------------------
     log_Msg "Build Paths"
     # --------------------------------------------------------------------------
+    log_Msg "Get batch path"
+    #need to check for non file paths
+    for folder in ($step_names)
+    do
+        BATCH_PATH=$batchdir"$folder"${subjid//\//_}".mat"
+        log_Msg $BATCH_PATH
+        
+        
+        module load spm12
+
+        spm_command="spm batch "${BATCH_PATH}
+        #spm_command="spm --help"
+        
+        # -dontrun just prints the commands that will run, without execute them
+        if [ ! -z $print ] ; then
+            spm_command+=" -dontrun"
+        fi
+
+        log_Msg "spm_command:\n${spm_command}"
 
 
-    spm_command="spm batch "${BATCH_PATH}
+        echo "----------------------------------------------------------"
+        echo "run spm batch command"
+        echo "----------------------------------------------------------"
+        ${spm_command}
 
-    # -dontrun just prints the commands that will run, without execute them
-    if [ ! -z $print ] ; then
-        spm_command+=" -dontrun"
-    fi
-
-    log_Msg "spm_command:\n${spm_command}"
-
-
-    echo "----------------------------------------------------------"
-    echo "Call recon-all command"
-    echo "----------------------------------------------------------"
-    ${spm_command}
-
-    return_code=$?
-    if [ "${return_code}" != "0" ]; then
-        log_Err_Abort "recon-all command failed with return_code: ${return_code}"
-    fi
-
+        return_code=$?
+        if [ "${return_code}" != "0" ]; then
+            log_Err_Abort "recon-all command failed with return_code: ${return_code}"
+        fi
+    done
 
 
 
@@ -151,10 +166,8 @@ halt()
    fi
 }
 
-echo ""
-echo "####################################################"
-echo "################ START: APP_GPNTK.sh ##################"
-echo "####################################################"
+
+
 
 setup
 input_parser "$@"

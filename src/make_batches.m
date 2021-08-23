@@ -1,4 +1,4 @@
-function x = make_batches(subjects,studydir,batchdir)
+function x = make_batches(subjects,studydir,batchdir,step_names)
     study_dir = studydir;
     subject_list = subjects; 
     save_dir = batchdir;
@@ -10,11 +10,12 @@ function x = make_batches(subjects,studydir,batchdir)
     proc_dir = '/step05_Encoding/';
     numVol = 270;
     fname = 'Encoding';
+    steps = split(step_name)
 
     % Motion correction
     clearvars -except study_dir subject_list proc_dir save_dir numVol fname;
     image = [proc_dir '*' fname '.nii'];
     type_flag = 0;
-    save_path = [save_dir 'step03_motion_correction/']; mkdir(save_path);
+    save_path = [save_dir steps(1)]; mkdir(save_path);
     GPN_realign(study_dir,subject_list,image,numVol,type_flag,save_path);
 end

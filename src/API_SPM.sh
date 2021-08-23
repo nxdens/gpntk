@@ -42,8 +42,8 @@ Usage: $log_ToolName
                     [--input_filename=<name of DICOM or NIFTI file>]     Default: None
                     [--input=<path to DICOM or NIFTI>]                   Default: None
                     [--batchdir=<batch directory>]                       Default: None
-                    [--batchscript=<path to batch file>]                   Default: None
-                    [--pipeline_steps=<list of pipeline steps>]          Default: None
+                    [--batchscript=<path to batch file>]                 Default: None
+                    [--step_names=<list of steps>]                       Default: None
                     [--debug=<true or false>]                            Default: false
 
                 Miscellaneous Options
@@ -85,8 +85,9 @@ input_parser()
     #opts_AddOptional  '--input' 'input' 'path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series' "an optional argument; path relative to <DATASETDIR>/<SUBJID> to single DICOM file from a T1 MRI series or a single NIFTI file from a series. If no input volumes are given and both input_dirname and input_filename are None, then it is assumed that the subject directory has already been created and that the data already exists in MGZ format in <DATASETDIR>/<SUBJID>/mri/orig as XXX.mgz where XXX is a 3-digit, zero-padded number. If input_dirname is supplied, input is assumed to be <DATASETDIR>/<SUBJID>/input_dirname/t1w.nii.gz. If input_filename is supplied, then input is assumed to be <DATASETDIR>/<SUBJID>/<input_filename>. If both <input_dirname> and <input_filename> are supplied, then input is assumed to be <DATASETDIR>/<SUBJID>/<input_dirname>/<input_filename>. Default: None." "" "--i"
     # array of folders containing the batches for now until we generate the batches as well
     opts_AddOptional  '--batchdir' 'batchdir' 'set directory for matlab batches for SPM' "an optional argument: directory where the .mat matlab batches are stored or generated. Default: None" ""
-    #unused for now 
+    
     opts_AddOptional  '--batch_script' 'batch_script' 'set file used for generating batches. If not set then script will look for .mat batches in the batch directory' "an optional arguement; matlab file used to create batches if not already put in the batch directory toDefault:None" ""
+    opts_AddOptional  '--step_names' 'step_names' 'Space seperated string with the names of all the folders that will be used for processing' "an optional arguement; Required for batch creation. Default: none" "" ""
     #used to determine file structure
     opts_AddOptional  '--debug' 'debug' 'print out lots of info' "an optional argument; if true, print out lots of information to error log file. Default: false" "false" "--v"
 
@@ -113,7 +114,7 @@ parse_json()
        "subjects" "s" "sid" "subjid"  "subject" "subjects_list" "subjid_list"
        "studydir" "ds" "subjectsdir" "subd"
        "input_dirname" "i_dirname" "input_filename" "i_filename"  "input" "i"
-       "batchdir" "bd" "batch_script"
+       "batchdir" "bd" "batch_script" "step_names"
        "debug" "v"  "print" "clean_job" "clean_instance")
 
     API_ARGS=()
@@ -151,7 +152,7 @@ get_default_dataset_dir()
                 exit 1
             fi
         else
-            DATASETDIR="${studydir}/raw"
+            DATASETDIR="${studydir}"
         fi
         # if subjectsdir is located in the studydir path, ok
     fi
@@ -423,7 +424,8 @@ make_batches()
         --subjects="${subjid_list_string}" \
         --studydir="${studydir}" \
         --batchdir="${batchdir}" \
-        --batchscript="${batch_script}"
+        --batchscript="${batch_script}" \
+        --step_names="${step_names}"
 
 }
 get_queuing_command()
@@ -530,13 +532,13 @@ main()
   --error=$error
   --timestamp=$timestamp
   --print=$print"
-    #change this for spm
-    #$queuing_command 
+    
     $queuing_command $APPDIR/src/BATCH_SPM.sh \
         --subjects="${subjid_list_string}" \
         --studydir="${studydir}" \
         --subjectsdir="${DATASETDIR}" \
         --batchdir="${batchdir}" \
+        --step_names="${step_names}" \
         --job_name="${job_name}" \
         --location="${location}" \
         --job_slots="${job_slots}" \

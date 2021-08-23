@@ -1,7 +1,4 @@
 #!/bin/bash
-source /etc/profile
-a="123/456"
-b=${a//\//_}".mat"
-echo $b
-#module load spm12
-#spm
+line="step1 step2 step3"
+arr=($line)
+echo ${arr[0]}
