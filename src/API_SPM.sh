@@ -253,7 +253,7 @@ setup()
             rm -rf $STUDY_JOBDIR/${clean_instance}
         fi
     fi
-    #make_batches
+    make_batches
     JOB_LOGDIR="${APPDIR}/jobs/${job_name}/${timestamp}/log"
     mkdir -p $JOB_LOGDIR
     log_Msg "JOB_LOGDIR:\n$JOB_LOGDIR"
@@ -413,7 +413,7 @@ make_batches()
     singularity_cmd+=" -B /ocean/projects/med200002p/liw82/gpntk/"
     singularity_cmd+=" -S /ocean/projects/med200002p/shared/gpntk/libexec/gpntk.sif "
     singularity_cmd+=" bash"
-    log_Msg "$singularity_cmd 
+    log_Msg "bash
         $APPDIR/src/SPM_Make_Batches.sh 
         --subjects=$subjects 
         --studydir=$studydir 
@@ -421,7 +421,7 @@ make_batches()
         --batchscript=$batch_script 
         --step_names=$step_names"
     #somehow need to get module to work
-    $singularity_cmd \
+    bash \
     $APPDIR/src/SPM_Make_Batches.sh \
         --subjects="${subjects}" \
         --studydir="${studydir}" \

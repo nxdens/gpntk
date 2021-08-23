@@ -40,9 +40,8 @@ main()
     BATCHNAME=$(basename ${batchscript})
     
     # want this to eventually be spm12
-    module load spm12 
-    cd $BATHCLOC
-    spm eval "$BATCHNAME(\"$subjects\", \"$studydir\",\"$batchdir\", \"$step_names\");"
+    module load matlab  
+    matlab -nodisplay -r "cd $BATHCLOC; $BATCHNAME('$subjects', '$studydir','$batchdir', '$step_names'); exit;"
 }
 
 setup
