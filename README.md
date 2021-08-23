@@ -43,7 +43,7 @@ The configuration file `config.json` must be populated with something like
     "location": "psc_bridges2",
     "subjects": "/ocean/projects/med200002p/liw82/metadata/subjects.txt",
     "studydir": "/ocean/projects/med200002p/liw82/fMRI",
-	   "batchdir": "/ocean/projects/med200002p/liw82/fMRI/batches",
+    "batchdir": "/ocean/projects/med200002p/liw82/fMRI/batches",
     "batchscript": "/ocean/projects/med200002p/liw82/fMRI/batches/make_batches",
     "clean_job": false,
     "mail_user": "liw82@pitt.edu",
