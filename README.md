@@ -22,6 +22,9 @@ $ git clone git@github.com:gpnlab/app-freesurfer.git
 $ source $HOME/app-freesurfer/etc/app.conf
 ```
 
+```bash
+bash /iw82/gpntk/libexec/app-gpntk.sh run_spm test_spm
+```
 ## Dependencies
 
 This App only requires [jq](https://stedolan.github.io/jq/) and [singularity](https://www.sylabs.io/singularity/) to run. Also, for batch jobs, [SLURM](https://www.schedmd.com/) or [parallel](https://www.gnu.org/software/parallel/) if SLURM is not available.
