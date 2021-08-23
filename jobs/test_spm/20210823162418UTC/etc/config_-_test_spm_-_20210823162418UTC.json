@@ -4,7 +4,9 @@
     "subjects": "/ocean/projects/med200002p/liw82/metadata/subjects.txt",
     "studydir": "/ocean/projects/med200002p/liw82/fMRI",
 	"batchdir": "/ocean/projects/med200002p/liw82/fMRI/batches",
-    "batchscript": "/ocean/projects/med200002p/liw82/fMRI/batches/make_batches",
-    "clean_job": true,
-    "mail_user": "liw82@pitt.edu"
+    "batch_script": "/ocean/projects/med200002p/liw82/gpntk/src/make_batches",
+    "clean_job": false,
+    "mail_user": "liw82@pitt.edu",
+    "time": "01:00:00",
+    "step_names": "step03_motion_correction/"
 }
