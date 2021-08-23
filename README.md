@@ -5,7 +5,7 @@ This is a wrapper for [Freesurfer](https://surfer.nmr.mgh.harvard.edu/); a popul
 # SPM-fork
 This fork adds compatibility for spm within the app-freesurfer api as a temporary measure until we decide whether to spin it off into it's own thing (app-spm or something) or just keep it as is. 
 
-## MATLAB Usage
+### MATLAB Usage
 This package requires access to matlab on the PSC which you can apply for here: https://www.psc.edu/resources/software/matlab/permission-form/
 
 ### Authors
