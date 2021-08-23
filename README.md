@@ -39,14 +39,16 @@ app-freesurfer
 The configuration file `config.json` must be populated with something like
 ```json
 {
-    "job_name": "example",
-    "location": "gpn_paradox",
-    "subjects": "/example/metadata/subjects.txt",
-    "studydir": "/example",
-    "input_dirname": "MNI",
-    "input_filename": "7T11.nii.gz",
-    "hires": "true",
-    "skullstrip": "-autorecon1"
+    "job_name": "test_spm",
+    "location": "psc_bridges2",
+    "subjects": "/ocean/projects/med200002p/liw82/metadata/subjects.txt",
+    "studydir": "/ocean/projects/med200002p/liw82/fMRI",
+	   "batchdir": "/ocean/projects/med200002p/liw82/fMRI/batches",
+    "batchscript": "/ocean/projects/med200002p/liw82/fMRI/batches/make_batches",
+    "clean_job": false,
+    "mail_user": "liw82@pitt.edu",
+    "time": "01:00:00",
+    "step_names": "step03_motion_correction/ step04_mean_skullstrip_BET.txt"
 }
 ```
 
@@ -71,25 +73,16 @@ Below is a short summary of the supported arguments
 ["mail_user": <user email>]                           Default: None
 
 Freesurfer Options
-"subjects: <path or list>
-"studydir": <study directory>                         Default: None
-["subjectsdir": <subjects directory>]                 Default: None
-["input_dirname": <path to append to subject dir]     Default: None
-["input_filename": <name of DICOM or NIFTI file>]     Default: None
-["input": <path to DICOM or NIFTI>]                   Default: None
-["t2_dirname": <path to append to subject dir]        Default: None
-["t2_filename": <name of DICOM or NIFTI file>]        Default: None
-["T2": <path to DICOM or NIFTI>]                      Default: None
-["flair_dirname": <path to append to subject dir]     Default: None
-["flair_filename": <name of DICOM or NIFTI file>]     Default: None
-["FLAIR": <path to DICOM or NIFTI>]                   Default: None
-["directives": <list of freesurfer directives>]       Default: -autorecon-all
-["expert_opts": <list of freesurfer expert options>]  Default: None
-["expert_opts_file": <file with freesurfer xopts]     Default: None
-["hires": <true or false>]                            Default: false
-["skullstrip": <autorecon1 directive>]                Default: false
-["multistrip": <true or false>]                       Default: false
-[--debug=<true or false>]                             Default: false
+--subjects=<path or list>
+--studydir=<study directory>                         Default: None
+[--subjectsdir=<subjects directory>]                 Default: None
+[--input_dirname=<path to append to subject dir]     Default: None
+[--input_filename=<name of DICOM or NIFTI file>]     Default: None
+[--input=<path to DICOM or NIFTI>]                   Default: None
+[--batchdir=<batch directory>]                       Default: None
+[--batchscript=<path to batch file>]                 Default: None
+[--step_names=<list of steps>]                       Default: None
+[--debug=<true or false>]                            Default: false
 
 Miscellaneous Options
 ["print": <print command>]                            Default: None
