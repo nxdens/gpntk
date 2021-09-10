@@ -103,10 +103,11 @@ main()
     # --------------------------------------------------------------------------
     log_Msg "Get batch path"
     #need to check for non file paths
-    
-    #for folder in ($step_names)
-    #do
-    BATCH_PATH=$batchdir"/step03_motion_correction/"${subjid//\//_}".mat"
+    steps=${step_names//,/ }
+    log_Msg "Steps: $steps"
+    for folder in $steps
+    do
+    BATCH_PATH=$batchdir"$folder"${subjid//\//_}".mat"
     log_Msg $BATCH_PATH
     
     
@@ -126,13 +127,8 @@ main()
     echo "----------------------------------------------------------"
     echo "run spm batch command"
     echo "----------------------------------------------------------"
-    ${spm_command}
-
-    return_code=$?
-    if [ "${return_code}" != "0" ]; then
-        log_Err_Abort "recon-all command failed with return_code: ${return_code}"
-    fi
-    #done
+    #${spm_command}
+    done
 
 
 

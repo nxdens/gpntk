@@ -13,11 +13,16 @@ function x = make_batches(subjects,studydir,batchdir,step_names)
     proc_dir = '/step05_Encoding/';
     numVol = 270;
     fname = 'Encoding';
-    steps = split(step_names);
+    steps = strsplit(step_names,',');
 
     % Motion correction
     image = [proc_dir '*' fname '.nii'];
     type_flag = 0;
     save_path = [save_dir char(steps(1))]; mkdir(save_path);
+    GPN_realign(study_dir,subject_list,image,numVol,type_flag,save_path);
+
+    image = [proc_dir '*' fname '.nii'];
+    type_flag = 0;
+    save_path = [save_dir char(steps(2))]; mkdir(save_path);
     GPN_realign(study_dir,subject_list,image,numVol,type_flag,save_path);
 end

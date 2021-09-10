@@ -301,11 +301,11 @@ setup_bridges2()
     uname -a
 
     module purge # Make sure the modules environment is sane
-
+    module load matlab
     echo "----------------------------------------------------------"
     echo "Set environment variables for required software:"
     echo "----------------------------------------------------------"
-    SPM=$SERVER_APPDIR/bin/singularity-gpntk
+    SPM="/ocean/projects/med200002p/shared/spm12"
 
     if [[ ! -L $SPM ]] || [[ ! -e $SPM ]] ; then
         unset SPM
@@ -318,7 +318,6 @@ setup_bridges2()
     log_Check_Env_Var SSH
     log_Check_Env_Var RSYNC
     log_Check_Env_Var SINGULARITY
-    log_Check_Env_Var SPM
 
     #need to get rid of all the transfers since the batches aren't setup for that and also the gpn scripts aren't either
     #unfortunately gpn scripts do all subject batches at once for now 
@@ -515,18 +514,6 @@ main()
     # located at the expected path.
     SIF_PATH="$SERVER_APPDIR/libexec/gpntk.sif"
 
-    singularity_cmd="$SPM"
-    #singularity_cmd+=" -L $APP_LICENSE"
-    singularity_cmd+=" -B /ocean/projects/med200002p/liw82/"
-    singularity_cmd+=" -B $NODE_APPDIR:$CONTAINER_APPDIR"
-    singularity_cmd+=" -B $NODE_SUBJECTDIR:$CONTAINER_SUBJECTDIR"
-    singularity_cmd+=" -S $SIF_PATH"
-    singularity_cmd+=" bash"
-    echo "----------------------------------------------------------"
-    echo "Singularity command"
-    echo "----------------------------------------------------------"
-    echo "${singularity_cmd}"
-
     echo "----------------------------------------------------------"
     echo "APP_SPM.sh script call, Runing inside container"
     echo "----------------------------------------------------------"
@@ -538,19 +525,19 @@ main()
   --print=${print}"
   #1> $NODE_LOGDIR/APP_-_$SUBJID.out
   #2> $NODE_LOGDIR/APP_-_$SUBJID.err"
+    steps=${step_names//,/ }
+    for step in $steps
+    do
+        echo "matlab batch: ${batchdir}${step}${CONTAINER_SUBJID////_}"
+        matlab -nodisplay -nosplash -softwareopengl -r "cd $SERVER_APPDIR/src/; RUN_SPM_PSC('${batchdir}${step}${CONTAINER_SUBJID////_}.mat'); exit()" \
+        echo $step
+    done
+    #
 
     #replace spaces with commas in space separated options
     #this is replaced back to spaces in APP_SPM.sh
-    ${singularity_cmd} \
-    $CONTAINER_APPDIR/src/APP_SPM.sh \
-    --subjid="${CONTAINER_SUBJID}" \
-    --sd="${CONTAINER_SUBJECTDIR}" \
-    --batchdir="${batchdir}" \
-    --step_names="${step_names}" \
-    --print="${print// /,}" 
-    #1> "${NODE_LOGDIR}/APP_-_${SUBJID}.out" \
-    #2> "${NODE_LOGDIR}/APP_-_${SUBJID}.err"
-
+    #call matlab script to run batches
+    #"
     log_Msg "# END: main"
 }
 
@@ -616,7 +603,7 @@ halt()
    exit_code=$?
    if [ $exit_code -ne 0 ]; then
        echo "###################################################"
-       echo "################ HALT: APP_SPM.sh ##################"
+       echo "################ HALT:BATCH_SPM.sh ##################"
        echo "###################################################"
 
        clean
